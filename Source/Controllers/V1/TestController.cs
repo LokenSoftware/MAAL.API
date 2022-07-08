@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace MAAL.API.Controllers.V1;
 
 /// <inheritdoc />
-[ApiController, Route("V1/[controller]"), Authorize]
+[ApiController, Route("V1/[controller]")]
 public class TestController : ControllerBase
 {
 	/// <summary> </summary>

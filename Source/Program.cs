@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using MAAL.API.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -89,3 +90,9 @@ app.UseAuthorization();
 app.UseCors();
 
 app.Run();
+
+/// <summary> So tests can reference, but this shouldn't be necessary... </summary>
+[UsedImplicitly]
+#pragma warning disable CA1050
+public partial class Program { }
+#pragma warning restore CA1050

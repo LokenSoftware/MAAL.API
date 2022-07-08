@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
+#pragma warning disable CS1591
 
 namespace MAAL.API.Data.Migrations
 {
@@ -257,3 +258,4 @@ namespace MAAL.API.Data.Migrations
         }
     }
 }
+#pragma warning restore CS1591

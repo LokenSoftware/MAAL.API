@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MAAL.API.Data;
 
 #nullable disable
+#pragma warning disable CS1591
 
 namespace MAAL.API.Data.Migrations
 {
@@ -271,3 +272,4 @@ namespace MAAL.API.Data.Migrations
         }
     }
 }
+#pragma warning restore CS1591
