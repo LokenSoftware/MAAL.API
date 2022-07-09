@@ -82,6 +82,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseHttpLogging();
 
 app.UseRouting();
 app.MapControllers();
