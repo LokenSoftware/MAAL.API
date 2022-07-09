@@ -10,10 +10,10 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 string? connectionString = builder.Configuration.GetConnectionString("Identity");
 if (connectionString == null)
 {
-	throw new NullReferenceException("ConnectionStrings__Identity must be defined");
+	//throw new NullReferenceException("ConnectionStrings__Identity must be defined");
 }
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+	options.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
