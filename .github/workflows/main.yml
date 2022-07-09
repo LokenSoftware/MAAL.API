@@ -12,7 +12,7 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
-    outputs: 
+    outputs:
       output1: Source/bin/x64/Release/net6.0/publish
 
     steps:
@@ -37,12 +37,14 @@ jobs:
     if: github.ref == 'refs/heads/main'
     
     steps:
-      - name: Deploy
+      - name: Dir
+        run: dir
+      - name: Transfer files
         run: |
-          dir
           sudo apt-get install sshpass
           sshpass -p "${{ secrets.PASSWORD }}" scp -r Source/bin/x64/Release/net6.0/publish ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
-          sshpass -p "${{ secrets.PASSWORD }}" ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+      - name: Replace process
+        run: |
           kill $(ps aux | grep 'MAAL.API.dll' | awk '{print $2}')
           rm -rf /var/www/MAAL.API
           mv ~/MAAL.API /var/www/MAAL.API
