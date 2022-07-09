@@ -29,24 +29,12 @@ jobs:
       # Publish
       - name: Publish
         run: dotnet publish --configuration Release
-      - name: Transfer Files
-        uses: appleboy/scp-action@v0.1.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          source: "Source/bin/x64/Release/net6.0/publish"
-          target: "MAAL.API"
-      - name: executing remote ssh commands using password
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          script: |
-            kill $(ps aux | grep 'MAAL.API.dll' | awk '{print $2}')
-            rm -rf /var/www/MAAL.API
-            mv ~/MAAL.API /var/www/MAAL.API
-            dotnet ./MAAL.API/MAAL.API.dll
+      - name: Deploy
+        run: |
+          apt install sshpass
+          sshpass -p "${{ secrets.PASSWORD }}" scp -r Source/bin/x64/Release/net6.0/publish ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
+          sshpass -p "${{ secrets.PASSWORD }}" ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+          kill $(ps aux | grep 'MAAL.API.dll' | awk '{print $2}')
+          rm -rf /var/www/MAAL.API
+          mv ~/MAAL.API /var/www/MAAL.API
+          dotnet ./MAAL.API/MAAL.API.dll
