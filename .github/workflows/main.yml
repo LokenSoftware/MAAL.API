@@ -12,40 +12,54 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
-    outputs:
-      output1: Source/bin/x64/Release/net6.0/publish
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
+
       - name: Restore dependencies
         run: dotnet restore
+
       - name: Build
         run: dotnet build --no-restore
+
       - name: Test
         run: dotnet test --no-build --verbosity normal
+        
       - name: Publish
-        run: dotnet publish --configuration Release
+        # Publish shouldn't be needed unless we need to deploy
+        if: github.ref == 'refs/heads/main'
+        run: dotnet publish --configuration Main
+      - uses: actions/upload-artifact@master
+        with:
+          name: publish
+          path: Source/bin/x64/Main/net6.0/publish
   
   Deploy:
     runs-on: ubuntu-latest
     needs:
       - Build
+    # Only deploy on main
     if: github.ref == 'refs/heads/main'
     
     steps:
-      - name: Dir
-        run: dir
+      - uses: actions/download-artifact@master
+        with:
+          name: publish
+          path: Source/bin/x64/Main/net6.0/publish
+
       - name: Transfer files
-        run: |
-          sudo apt-get install sshpass
-          sshpass -p "${{ secrets.PASSWORD }}" scp -r Source/bin/x64/Release/net6.0/publish ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
+        run: sshpass -p "${{ secrets.PASSWORD }}" scp -o "StrictHostKeyChecking no" -r Source/bin/x64/Main/net6.0/publish ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
+
       - name: Replace process
         run: |
-          kill $(ps aux | grep 'MAAL.API.dll' | awk '{print $2}')
+          sshpass -p "${{ secrets.PASSWORD }}" ssh -t ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
+          echo "${{ secrets.PASSWORD }}" | sudo -S systemctl stop kestrel-MAAL.API.service
           rm -rf /var/www/MAAL.API
           mv ~/MAAL.API /var/www/MAAL.API
-          dotnet ./MAAL.API/MAAL.API.dll
+          sudo systemctl start kestrel-MAAL.API.service
+          EOF

@@ -6,6 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+Console.WriteLine(builder.Configuration.GetConnectionString("Identity"));
+Console.WriteLine(builder.Configuration.GetSection("Authentication").GetSection("Google")["ClientId"]);
+Console.WriteLine(builder.Configuration.GetSection("Authentication").GetSection("Google")["ClientSecret"]);
+Console.WriteLine(builder.Configuration.GetSection("CORS").GetSection("AllowedOrigins").Get<string[]>().FirstOrDefault());
+
 // EF Core Identity
 string? connectionString = builder.Configuration.GetConnectionString("Identity");
 if (connectionString == null)
