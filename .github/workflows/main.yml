@@ -29,13 +29,26 @@ jobs:
       # Publish
       - name: Publish
         run: dotnet publish --configuration Release
-      - name: SCP Command to Transfer Files
+      - name: Transfer Files
         uses: appleboy/scp-action@v0.1.3
         with:
-          host: api.maal.dev
+          host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          port: 22
-          source: "Source/bin/x64/Debug/net6.0"
+          port: ${{ secrets.PORT }}
+          source: "Source/bin/x64/Release/net6.0/publish"
           target: "MAAL.API"
-          
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            echo "${{ secrets.PASSWORD }}\n" | sudo -S kill $(ps aux | grep 'MAAL.API.dll' | awk '{print $2}')
+            echo "${{ secrets.PASSWORD }}\n" | sudo -S rm -rf /var/www/MAAL.API
+            echo "${{ secrets.PASSWORD }}\n" | sudo -S mkdir /var/www/MAAL.API
+            echo "${{ secrets.PASSWORD }}\n" | sudo -S mv ~/MAAL.API /var/www/MAAL.API
+            echo "${{ secrets.PASSWORD }}\n" | sudo -S mv ~/MAAL.API /var/www/MAAL.API
+            echo "${{ secrets.PASSWORD }}\n" | sudo -S dotnet ./MAAL.API/MAAL.API.dll
