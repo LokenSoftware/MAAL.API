@@ -36,6 +36,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: 22
-          source: "Source\bin\x64\Debug\net6.0"
+          source: "Source/bin/x64/Debug/net6.0"
           target: "MAAL.API"
           
