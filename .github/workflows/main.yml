@@ -46,9 +46,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           script: |
-            echo "${{ secrets.PASSWORD }}\n" | sudo -S kill $(ps aux | grep 'MAAL.API.dll' | awk '{print $2}')
-            echo "${{ secrets.PASSWORD }}\n" | sudo -S rm -rf /var/www/MAAL.API
-            echo "${{ secrets.PASSWORD }}\n" | sudo -S mkdir /var/www/MAAL.API
-            echo "${{ secrets.PASSWORD }}\n" | sudo -S mv ~/MAAL.API /var/www/MAAL.API
-            echo "${{ secrets.PASSWORD }}\n" | sudo -S mv ~/MAAL.API /var/www/MAAL.API
-            echo "${{ secrets.PASSWORD }}\n" | sudo -S dotnet ./MAAL.API/MAAL.API.dll
+            kill $(ps aux | grep 'MAAL.API.dll' | awk '{print $2}')
+            rm -rf /var/www/MAAL.API
+            mv ~/MAAL.API /var/www/MAAL.API
+            dotnet ./MAAL.API/MAAL.API.dll
