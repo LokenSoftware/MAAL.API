@@ -31,7 +31,7 @@ jobs:
         run: dotnet publish --configuration Release
       - name: Deploy
         run: |
-          apt install sshpass
+          apt-get install sshpass
           sshpass -p "${{ secrets.PASSWORD }}" scp -r Source/bin/x64/Release/net6.0/publish ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
           sshpass -p "${{ secrets.PASSWORD }}" ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }}
           kill $(ps aux | grep 'MAAL.API.dll' | awk '{print $2}')
