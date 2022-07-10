@@ -6,16 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-Console.WriteLine(builder.Configuration.GetConnectionString("Identity"));
-Console.WriteLine(builder.Configuration.GetSection("Authentication").GetSection("Google")["ClientId"]);
-Console.WriteLine(builder.Configuration.GetSection("Authentication").GetSection("Google")["ClientSecret"]);
-Console.WriteLine(builder.Configuration.GetSection("CORS").GetSection("AllowedOrigins").Get<string[]>().FirstOrDefault());
-
 // EF Core Identity
 string? connectionString = builder.Configuration.GetConnectionString("Identity");
 if (connectionString == null)
 {
+	// TODO: TESTS do not work with this currently
 	//throw new NullReferenceException("ConnectionStrings__Identity must be defined");
+	Console.WriteLine("ConnectionStrings__Identity was null");
 }
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 	options.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString)));
@@ -23,7 +20,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Identity
-builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
 	.AddEntityFrameworkStores<ApplicationDbContext>()
 	.AddSignInManager()
 	.AddDefaultTokenProviders();

@@ -1,10 +1,12 @@
-﻿using System.Web;
+﻿using System.Security.Claims;
+using System.Web;
 using MAAL.API.Bases;
 using MAAL.API.Enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace MAAL.API.Controllers.V1;
 
@@ -41,7 +43,7 @@ public class LoginController : MAALControllerBase
 	{
 		try
 		{
-			string redirectUrl = $"{Request.Host}/V1/Login/Callback?returnUrl={HttpUtility.UrlEncode(returnUrl)}";
+			string redirectUrl = $"{Request.Scheme}://{Request.Host}/V1/Login/Callback?returnUrl={HttpUtility.UrlEncode(returnUrl)}";
 
 			string providerName = provider switch
 			{
@@ -74,10 +76,29 @@ public class LoginController : MAALControllerBase
 		try
 		{
 			ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync().ConfigureAwait(false);
-			IdentityUser user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey)
+			SignInResult? result = await _signInManager
+				.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true, true)
 				.ConfigureAwait(false);
 
-			await _signInManager.SignInAsync(user, true).ConfigureAwait(false);
+			if (result.Succeeded)
+			{
+				return Ok();
+			}
+			if (result.IsLockedOut)
+			{
+				return Forbid();
+			}
+
+			var user = new IdentityUser();
+			string? email = info.Principal.FindFirstValue(ClaimTypes.Email);
+			await _userManager.SetUserNameAsync(user, email);
+			await _userManager.SetEmailAsync(user, email);
+
+			IdentityResult userResult = await _userManager.CreateAsync(user).ConfigureAwait(false);
+			if (userResult.Succeeded)
+			{
+				await _signInManager.SignInAsync(user, false);
+			}
 
 			// var options = new CookieOptions
 			// {

@@ -8,7 +8,7 @@
 		<UserSecretsId>aspnet-MAAL.API-DFE5B19D-F9AD-49D7-9FEF-D6F8BEE685BA</UserSecretsId>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		
-		<Configurations>Debug;Main</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<Platforms>x64</Platforms>
 	</PropertyGroup>
 	
