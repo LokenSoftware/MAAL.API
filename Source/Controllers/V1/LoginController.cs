@@ -41,7 +41,7 @@ public class LoginController : MAALControllerBase
 	{
 		try
 		{
-			var redirectUrl = $"https://localhost:4000/V1/Login/Callback?returnUrl={HttpUtility.UrlEncode(returnUrl)}";
+			string redirectUrl = $"{Request.Host}/V1/Login/Callback?returnUrl={HttpUtility.UrlEncode(returnUrl)}";
 
 			string providerName = provider switch
 			{
