@@ -9,5 +9,5 @@ public class TestController : ControllerBase
 	/// <summary> </summary>
 	/// <returns> </returns>
 	[HttpGet]
-	public string Get() => "hi";
+	public string Get() => "Hello from Vultr";
 }
