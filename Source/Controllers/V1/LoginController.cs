@@ -76,6 +76,15 @@ public class LoginController : MAALControllerBase
 		try
 		{
 			ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync().ConfigureAwait(false);
+
+			IdentityUser? existing = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey)
+				.ConfigureAwait(false);
+			if (existing != null)
+			{
+				await _signInManager.SignInAsync(existing, true).ConfigureAwait(false);
+				return Ok();
+			}
+			
 			SignInResult? result = await _signInManager
 				.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true, true)
 				.ConfigureAwait(false);
