@@ -53,7 +53,7 @@ jobs:
           path: Output
       
       - name: IP print
-        run: hostname -I
+        run: curl https://api.ipify.org
       
       - name: Transfer files
         run: sshpass -p "${{ secrets.PASSWORD }}" scp -o "StrictHostKeyChecking no" -r Output ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
