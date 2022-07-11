@@ -14,14 +14,17 @@ namespace MAAL.API.Controllers.V1;
 [ApiController, Route("V1/[controller]")]
 public class LoginController : MAALControllerBase
 {
+	/// <summary> Fully qualified base url to frontend </summary>
+	private readonly string _frontendUrl;
+
+	/// <summary> Fully qualified base url to self </summary>
+	private readonly string _selfUrl;
+
 	/// <inheritdoc cref="SignInManager{TUser}" />
 	private readonly SignInManager<IdentityUser> _signInManager;
 
 	/// <inheritdoc cref="UserManager{TUser}" />
 	private readonly UserManager<IdentityUser> _userManager;
-
-	/// <summary> </summary>
-	private readonly string _frontendUrl;
 
 	/// <inheritdoc />
 	public LoginController(ILogger<LoginController> logger,
@@ -32,6 +35,7 @@ public class LoginController : MAALControllerBase
 		_signInManager = signInManager;
 		_userManager = userManager;
 		_frontendUrl = configuration["FrontendUrl"];
+		_selfUrl = configuration["SelfUrl"];
 	}
 
 	/// <summary> Login with specific provider </summary>
@@ -43,8 +47,7 @@ public class LoginController : MAALControllerBase
 	{
 		try
 		{
-			string redirectUrl = $"{Request.Scheme}://{Request.Host}/V1/Login/Callback?returnUrl={HttpUtility.UrlEncode(returnUrl)}";
-
+			var redirectUrl = $"{_selfUrl}/V1/Login/Callback?returnUrl={HttpUtility.UrlEncode(returnUrl)}";
 			string providerName = provider switch
 			{
 				IdentityProvider.Microsoft => "Microsoft",
@@ -76,15 +79,15 @@ public class LoginController : MAALControllerBase
 		try
 		{
 			ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync().ConfigureAwait(false);
-
 			IdentityUser? existing = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey)
 				.ConfigureAwait(false);
+			
 			if (existing != null)
 			{
 				await _signInManager.SignInAsync(existing, true).ConfigureAwait(false);
 				return Ok();
 			}
-			
+
 			SignInResult? result = await _signInManager
 				.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true, true)
 				.ConfigureAwait(false);

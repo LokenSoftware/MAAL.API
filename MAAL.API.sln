@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionF
 		.gitignore = .gitignore
 		README.md = README.md
 		.github\workflows\main.yml = .github\workflows\main.yml
+		MAAL.API.sln.DotSettings = MAAL.API.sln.DotSettings
 	EndProjectSection
 EndProject
 Global
