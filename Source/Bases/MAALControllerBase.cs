@@ -6,11 +6,11 @@ namespace MAAL.API.Bases;
 public abstract class MAALControllerBase : ControllerBase
 {
 	/// <summary> Logger for controller </summary>
-	private readonly ILogger<MAALControllerBase> _logger;
+	protected readonly ILogger<MAALControllerBase> Logger;
 
 	/// <summary> </summary>
 	/// <param name="logger"> </param>
-	protected MAALControllerBase(ILogger<MAALControllerBase> logger) => _logger = logger;
+	protected MAALControllerBase(ILogger<MAALControllerBase> logger) => Logger = logger;
 
 	/// <summary> Log information about endpoint method, path and stack trace, as well as set status code to 500 </summary>
 	/// <param name="exception"> Pipe in exception from catch clause </param>
@@ -18,7 +18,7 @@ public abstract class MAALControllerBase : ControllerBase
 	protected void HandleException(Exception exception, int statusCode = StatusCodes.Status500InternalServerError)
 	{
 		Response.StatusCode = statusCode;
-		_logger.LogError(exception,
+		Logger.LogError(exception,
 			"{Method}: {Path}{Query}",
 			Request.Method,
 			Request.Path,

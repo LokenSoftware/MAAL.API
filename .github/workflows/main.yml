@@ -14,18 +14,14 @@ jobs:
     runs-on: self-hosted
     
     steps:
-      - uses: actions/checkout@v3
+      - name: Clone
+        run: git checkout origin/main
       
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: 6.0.x
-      
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore
       
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore --configuration Release
       
       - name: Test
         run: dotnet test --no-build --verbosity normal
@@ -40,11 +36,11 @@ jobs:
     
     steps:
       - name: Publish
-        # We have already restored and build in preview job
+        # We have already restored and built in previous job
         run: rm -rf Output && dotnet publish --no-build --no-restore --configuration Release --output Output
-        
+      
       - name: Transfer files
-        run: scp Output ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
+        run: scp -r Output ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
       
       - name: Replace process
         run: |

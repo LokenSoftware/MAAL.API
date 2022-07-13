@@ -62,6 +62,8 @@ public class LoginController : MAALControllerBase
 				= _signInManager.ConfigureExternalAuthenticationProperties(providerName, redirectUrl);
 
 			properties.AllowRefresh = true;
+			properties.RedirectUri = $"{_selfUrl}/signin-google";
+			Logger.LogWarning("Prop: {RedirectUri1}, Var: {RedirectUri2}" ,properties.RedirectUri, redirectUrl);
 			return Challenge(properties, providerName);
 		}
 		catch (Exception e)
