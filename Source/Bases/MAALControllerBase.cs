@@ -21,7 +21,7 @@ public abstract class MAALControllerBase : ControllerBase
 		_logger.LogError(exception,
 			"{Method}: {Path}{Query}",
 			Request.Method,
-			Request.Path,a
+			Request.Path,
 			Request.QueryString.ToString());
 	}
 }
