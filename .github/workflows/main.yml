@@ -11,7 +11,7 @@ on:
 
 jobs:
   Build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     
     steps:
       - uses: actions/checkout@v3
@@ -29,40 +29,29 @@ jobs:
       
       - name: Test
         run: dotnet test --no-build --verbosity normal
-      
-      - name: Publish
-        # Publish shouldn't be needed unless we need to deploy
-        if: github.ref == 'refs/heads/main'
-        run: dotnet publish --configuration Release -o Output
-      - uses: actions/upload-artifact@master
-        with:
-          name: publish
-          path: Output
   
   Deploy:
     runs-on: self-hosted
     needs:
       - Build
+    
     # Only deploy on main
     if: github.ref == 'refs/heads/main'
     
     steps:
-      - uses: actions/download-artifact@master
-        with:
-          name: publish
-          path: Output
-      
-      - name: IP print
-        run: curl https://api.ipify.org
-      
+      - name: Publish
+        # We have already restored and build in preview job
+        run: rm -rf Output && dotnet publish --no-build --no-restore --configuration Release --output Output
+        
       - name: Transfer files
-        run: sshpass -p "${{ secrets.PASSWORD }}" scp -o "StrictHostKeyChecking no" -r Output ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
+        run: scp Output ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
       
       - name: Replace process
         run: |
-          sshpass -p "${{ secrets.PASSWORD }}" ssh -t ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
+          ssh -t ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
           echo "${{ secrets.PASSWORD }}" | sudo -S systemctl stop kestrel-MAAL.API.service
           rm -rf /var/www/MAAL.API
           mv ~/MAAL.API /var/www/MAAL.API
           sudo systemctl start kestrel-MAAL.API.service
           EOF
+          
