@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using MAAL.API.Data;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -76,6 +77,7 @@ WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
 	app.UseMigrationsEndPoint();
+	app.UseHttpsRedirection();
 }
 else
 {
@@ -83,8 +85,13 @@ else
 	app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseHttpLogging();
+
+// We use Nginx
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+	ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseRouting();
 app.MapControllers();

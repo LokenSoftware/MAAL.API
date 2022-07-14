@@ -14,8 +14,8 @@ jobs:
     runs-on: self-hosted
     
     steps:
-      - name: Clone
-        run: git checkout origin/main
+      - name: Fetch
+        run: git fetch && git checkout origin/main 
       
       - name: Restore
         run: dotnet restore
@@ -49,5 +49,6 @@ jobs:
           rm -rf /var/www/MAAL.API
           mv ~/MAAL.API /var/www/MAAL.API
           sudo systemctl start kestrel-MAAL.API.service
+          logout
           EOF
           

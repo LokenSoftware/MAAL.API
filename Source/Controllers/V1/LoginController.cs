@@ -62,8 +62,6 @@ public class LoginController : MAALControllerBase
 				= _signInManager.ConfigureExternalAuthenticationProperties(providerName, redirectUrl);
 
 			properties.AllowRefresh = true;
-			properties.RedirectUri = $"{_selfUrl}/signin-google";
-			Logger.LogWarning("Prop: {RedirectUri1}, Var: {RedirectUri2}" ,properties.RedirectUri, redirectUrl);
 			return Challenge(properties, providerName);
 		}
 		catch (Exception e)
@@ -83,7 +81,7 @@ public class LoginController : MAALControllerBase
 			ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync().ConfigureAwait(false);
 			IdentityUser? existing = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey)
 				.ConfigureAwait(false);
-			
+
 			if (existing != null)
 			{
 				await _signInManager.SignInAsync(existing, true).ConfigureAwait(false);
