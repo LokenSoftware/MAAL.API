@@ -5,13 +5,13 @@ namespace MAAL.API.Test;
 
 /// <inheritdoc />
 /// <summary> Test /V1/Test endpoints </summary>
-public sealed class TestControllerTest : IClassFixture<MAALWebApplicationFactory>
+public sealed class TestControllerTest : IClassFixture<MAALWebApplicationFactory<Program>>
 {
 	/// <summary> </summary>
 	private readonly HttpClient _client;
 
 	/// <summary> </summary>
-	public TestControllerTest(MAALWebApplicationFactory factory) => _client = factory.CreateClient();
+	public TestControllerTest(MAALWebApplicationFactory<Program> factory) => _client = factory.CreateClient();
 
 	/// <summary> </summary>
 	[Fact]

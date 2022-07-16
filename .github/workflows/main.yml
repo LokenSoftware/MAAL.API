@@ -14,8 +14,13 @@ jobs:
     runs-on: self-hosted
     
     steps:
-      - name: Fetch
-        run: git fetch && git checkout origin/main 
+      - name: Clone
+        run: |
+          cd ..
+          rm -rf MAAL.API
+          git clone git@github.com-MAAL.API:LokenSoftware/MAAL.API.git
+          cd MAAL.API
+          git checkout origin/main
       
       - name: Restore
         run: dotnet restore
@@ -24,7 +29,7 @@ jobs:
         run: dotnet build --no-restore --configuration Release
       
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal --configuration Release
   
   Deploy:
     runs-on: self-hosted

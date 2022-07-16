@@ -95,9 +95,9 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 
 app.UseRouting();
 app.MapControllers();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors();
 
 app.Run();
 
