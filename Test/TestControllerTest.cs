@@ -10,7 +10,7 @@ public sealed class TestControllerTest : IClassFixture<MAALWebApplicationFactory
 	/// <summary> </summary>
 	private readonly HttpClient _client;
 
-	/// <summary> </summary>
+	/// <summary> xUnit constructs this on every test function, so we don't need to repeat CreateClient </summary>
 	public TestControllerTest(MAALWebApplicationFactory<Program> factory) => _client = factory.CreateClient();
 
 	/// <summary> </summary>
