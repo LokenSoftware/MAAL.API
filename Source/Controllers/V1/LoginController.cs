@@ -82,14 +82,16 @@ public class LoginController : MAALControllerBase
 			IdentityUser? existing = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey)
 				.ConfigureAwait(false);
 
+			var url = new Uri(new Uri(_frontendUrl), returnUrl);
+			RedirectResult redirect = Redirect(url.ToString());
 			if (existing != null)
 			{
 				await _signInManager.SignInAsync(existing, true).ConfigureAwait(false);
-				return Ok();
+				return redirect;
 			}
 
 			SignInResult? result = await _signInManager
-				.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true, true)
+				.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false, true)
 				.ConfigureAwait(false);
 
 			if (result.Succeeded)
@@ -103,23 +105,22 @@ public class LoginController : MAALControllerBase
 
 			var user = new IdentityUser();
 			string? email = info.Principal.FindFirstValue(ClaimTypes.Email);
-			await _userManager.SetUserNameAsync(user, email);
 			await _userManager.SetEmailAsync(user, email);
+			
+			string? username = info.Principal.Identity?.Name ?? email;
+			await _userManager.SetUserNameAsync(user, username);
 
 			IdentityResult userResult = await _userManager.CreateAsync(user).ConfigureAwait(false);
-			if (userResult.Succeeded)
+			if (!userResult.Succeeded)
 			{
-				await _signInManager.SignInAsync(user, false);
+				return Problem("User could not be created");
 			}
 
-			// var options = new CookieOptions
-			// {
-			// 	//Needed so that domain.com can access  the cookie set by api.domain.com
-			// 	Domain = "localhost", Expires = DateTime.UtcNow.AddMinutes(5)
-			// };
+			await _signInManager.SignInAsync(user, false, info.LoginProvider);
 
-			var url = new Uri(new Uri(_frontendUrl), returnUrl);
-			return Redirect(url.ToString());
+			// Should be moved to email confirmation: https://github.com/dotnet/aspnetcore/blob/main/src/Identity/UI/src/Areas/Identity/Pages/V5/Account/ExternalLogin.cshtml.cs
+			await _userManager.AddLoginAsync(user, info).ConfigureAwait(false);
+			return redirect;
 		}
 		catch (Exception e)
 		{
