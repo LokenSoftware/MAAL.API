@@ -37,7 +37,7 @@ jobs:
         run: dotnet test --no-build --verbosity normal --configuration ${{ env.ENVIRONMENT }}
       
       - name: Publish
-        if: endsWith(github.ref, '/main')
+        if: github.ref_name == 'main'
         run: dotnet publish --no-build --no-restore --configuration ${{ env.ENVIRONMENT }} --output Output
   
   Deploy:
@@ -45,19 +45,13 @@ jobs:
     needs:
       - Build
     
-    if: endsWith(github.ref, '/main')
+    if: github.ref_name == 'main'
     
     steps:
-      - name: Transfer files
-        run: scp -r Output ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
-      
       - name: Replace process
         run: |
-          ssh -t ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
           echo "${{ secrets.PASSWORD }}" | sudo -S systemctl stop kestrel-MAAL.API.service
           rm -rf /var/www/MAAL.API
-          mv ~/MAAL.API /var/www/MAAL.API
+          mv Output /var/www/MAAL.API
           sudo systemctl start kestrel-MAAL.API.service
-          logout
-          EOF
           
