@@ -37,20 +37,19 @@ jobs:
       
       - name: Test
         run: dotnet test --no-build --verbosity normal --configuration ${{ env.ENVIRONMENT }}
+      
+      - name: Publish
+        if: endsWith(github.ref, '/main')
+        run: rm -rf Output && dotnet publish --no-build --no-restore --configuration ${{ env.ENVIRONMENT }} --output Output
   
   Deploy:
     runs-on: self-hosted
     needs:
       - Build
     
-    # Only deploy on main
     if: endsWith(github.ref, '/main')
     
     steps:
-      - name: Publish
-        # We have already restored and built in previous job
-        run: rm -rf Output && dotnet publish --no-build --no-restore --configuration ${{ env.ENVIRONMENT }} --output Output
-      
       - name: Transfer files
         run: scp -r Output ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
       
