@@ -14,22 +14,29 @@ jobs:
     runs-on: self-hosted
     
     steps:
+      - name: Production
+        if: endsWith(github.ref, '/main')
+        run: echo "ENVIRONMENT=Production" >> $GITHUB_ENV
+      - name: Development
+        if: endsWith(github.ref, '/dev')
+        run: echo "ENVIRONMENT=Development" >> $GITHUB_ENV
+      
       - name: Clone
         run: |
           cd ..
           rm -rf MAAL.API
           git clone git@github.com-MAAL.API:LokenSoftware/MAAL.API.git
           cd MAAL.API
-          git checkout origin/main
+          git checkout origin/${GITHUB_REF#refs/heads/}
       
       - name: Restore
         run: dotnet restore
       
       - name: Build
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build --no-restore --configuration ${{ env.ENVIRONMENT }}
       
       - name: Test
-        run: dotnet test --no-build --verbosity normal --configuration Release
+        run: dotnet test --no-build --verbosity normal --configuration ${{ env.ENVIRONMENT }}
   
   Deploy:
     runs-on: self-hosted
@@ -37,12 +44,12 @@ jobs:
       - Build
     
     # Only deploy on main
-    if: github.ref == 'refs/heads/main'
+    if: endsWith(github.ref, '/main')
     
     steps:
       - name: Publish
         # We have already restored and built in previous job
-        run: rm -rf Output && dotnet publish --no-build --no-restore --configuration Release --output Output
+        run: rm -rf Output && dotnet publish --no-build --no-restore --configuration ${{ env.ENVIRONMENT }} --output Output
       
       - name: Transfer files
         run: scp -r Output ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/MAAL.API
