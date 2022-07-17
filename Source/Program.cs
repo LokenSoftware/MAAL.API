@@ -64,8 +64,8 @@ authBuilder.AddTwitter(options =>
 	{
 		throw new NullReferenceException("Authentication__Twitter__ClientId and ClientSecret must be defined");
 	}
-	options.ConsumerKey = clientId;
-	options.ConsumerSecret = clientSecret;
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
 });
 
 // CORS
