@@ -16,5 +16,8 @@ public enum IdentityProvider
 	LinkedIn,
 
 	/// <summary> MAAL account </summary>
-	MAAL
+	MAAL,
+
+	/// <summary> GitHub account </summary>
+	GitHub
 }

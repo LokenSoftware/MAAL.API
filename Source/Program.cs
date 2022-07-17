@@ -68,6 +68,20 @@ authBuilder.AddTwitter(options =>
 	options.ClientSecret = clientSecret;
 });
 
+// GitHub
+authBuilder.AddGitHub(options =>
+{
+	IConfigurationSection? gitHub = authentication.GetSection("GitHub");
+	string? clientId = gitHub["ClientId"];
+	string? clientSecret = gitHub["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__GitHub__ClientId and ClientSecret must be defined");
+	}
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
+});
+
 // CORS
 builder.Services.AddCors(options =>
 {
