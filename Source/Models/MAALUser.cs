@@ -7,4 +7,4 @@ namespace MAAL.API.Models;
 /// <param name="Name"> </param>
 /// <param name="Email"> </param>
 [UsedImplicitly]
-public sealed record MAALUser(string Id, string Name, string Email);
+public sealed record MAALUser(string Id, string Name, string Email, string Provider);

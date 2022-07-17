@@ -39,6 +39,8 @@ authBuilder.AddIdentityCookies();
 
 // Authentication Providers
 IConfigurationSection authentication = builder.Configuration.GetSection("Authentication");
+
+// Google
 authBuilder.AddGoogle(options =>
 {
 	IConfigurationSection google = authentication.GetSection("Google");
@@ -50,6 +52,20 @@ authBuilder.AddGoogle(options =>
 	}
 	options.ClientId = clientId;
 	options.ClientSecret = clientSecret;
+});
+
+// Twitter
+authBuilder.AddTwitter(options =>
+{
+	IConfigurationSection? twitter = authentication.GetSection("Twitter");
+	string? clientId = twitter["ClientId"];
+	string? clientSecret = twitter["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__Twitter__ClientId and ClientSecret must be defined");
+	}
+	options.ConsumerKey = clientId;
+	options.ConsumerSecret = clientSecret;
 });
 
 // CORS
