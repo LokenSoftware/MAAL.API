@@ -100,6 +100,20 @@ authBuilder.AddMicrosoftAccount(options =>
 	options.ClientSecret = clientSecret;
 });
 
+// Facebook
+authBuilder.AddFacebook(options =>
+{
+	IConfigurationSection? facebook = authentication.GetSection("Facebook");
+	string? clientId = facebook["ClientId"];
+	string? clientSecret = facebook["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__Facebook__ClientId and ClientSecret must be defined");
+	}
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
+});
+
 // CORS
 builder.Services.AddCors(options =>
 {

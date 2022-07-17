@@ -34,4 +34,20 @@ public class UserController : MAALControllerBase
 			throw;
 		}
 	}
+
+	/// <summary> Remove user entirely </summary>
+	[HttpGet("Remove")]
+	public async Task Get_Remove()
+	{
+		try
+		{
+			IdentityUser user = await _userManager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
+			await _userManager.DeleteAsync(user);
+		}
+		catch (Exception e)
+		{
+			HandleException(e);
+			throw;
+		}
+	}
 }
