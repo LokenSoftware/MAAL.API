@@ -1,16 +1,19 @@
-﻿namespace MAAL.API.Enums;
+﻿using JetBrains.Annotations;
+
+namespace MAAL.API.Enums;
 
 /// <summary> Supported identity providers </summary>
+[PublicAPI]
 public enum IdentityProvider
 {
-	/// <summary> Microsoft account </summary>
-	Microsoft,
+	/// <summary> Facebook account </summary>
+	Facebook,
+
+	/// <summary> GitHub account </summary>
+	GitHub,
 
 	/// <summary> Google account </summary>
 	Google,
-
-	/// <summary> Twitter account </summary>
-	Twitter,
 
 	/// <summary> LinkedIn account </summary>
 	LinkedIn,
@@ -18,12 +21,12 @@ public enum IdentityProvider
 	/// <summary> MAAL account </summary>
 	MAAL,
 
-	/// <summary> GitHub account </summary>
-	GitHub,
+	/// <summary> Microsoft account </summary>
+	Microsoft,
 
 	/// <summary> Pinterest account </summary>
 	Pinterest,
 
-	/// <summary> Facebook account </summary>
-	Facebook
+	/// <summary> Twitter account </summary>
+	Twitter
 }

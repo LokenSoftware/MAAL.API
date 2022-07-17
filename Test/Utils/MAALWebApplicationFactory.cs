@@ -23,8 +23,6 @@ public sealed class MAALWebApplicationFactory<TStartup> : WebApplicationFactory<
 				new KeyValuePair<string, string>("Authentication:GitHub:ClientSecret", "null"),
 				new KeyValuePair<string, string>("Authentication:Microsoft:ClientId", "null"),
 				new KeyValuePair<string, string>("Authentication:Microsoft:ClientSecret", "null"),
-				new KeyValuePair<string, string>("Authentication:LinkedIn:ClientId", "null"),
-				new KeyValuePair<string, string>("Authentication:LinkedIn:ClientSecret", "null"),
 				new KeyValuePair<string, string>("Authentication:MAAL:ClientId", "null"),
 				new KeyValuePair<string, string>("Authentication:MAAL:ClientSecret", "null"),
 				new KeyValuePair<string, string>("Authentication:Pinterest:ClientId", "null"),
