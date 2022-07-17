@@ -19,5 +19,11 @@ public enum IdentityProvider
 	MAAL,
 
 	/// <summary> GitHub account </summary>
-	GitHub
+	GitHub,
+
+	/// <summary> Pinterest account </summary>
+	Pinterest,
+
+	/// <summary> Facebook account </summary>
+	Facebook
 }

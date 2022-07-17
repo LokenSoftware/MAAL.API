@@ -21,7 +21,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Identity
-builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+builder.Services.AddIdentityCore<IdentityUser>(options =>
+	{
+		options.SignIn.RequireConfirmedAccount = false;
+		options.User.AllowedUserNameCharacters = null;
+	})
 	.AddEntityFrameworkStores<ApplicationDbContext>()
 	.AddSignInManager()
 	.AddDefaultTokenProviders();
@@ -77,6 +81,20 @@ authBuilder.AddGitHub(options =>
 	if (clientId == null || clientSecret == null)
 	{
 		throw new NullReferenceException("Authentication__GitHub__ClientId and ClientSecret must be defined");
+	}
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
+});
+
+// Microsoft
+authBuilder.AddMicrosoftAccount(options =>
+{
+	IConfigurationSection? microsoft = authentication.GetSection("Microsoft");
+	string? clientId = microsoft["ClientId"];
+	string? clientSecret = microsoft["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__Microsoft__ClientId and ClientSecret must be defined");
 	}
 	options.ClientId = clientId;
 	options.ClientSecret = clientSecret;
