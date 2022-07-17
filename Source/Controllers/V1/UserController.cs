@@ -24,7 +24,25 @@ public class UserController : MAALControllerBase
 		try
 		{
 			IdentityUser user = await _userManager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
-			return new MAALUser(user.Id, user.UserName, user.Email);
+			IList<UserLoginInfo>? login = await _userManager.GetLoginsAsync(user);
+			string provider = login?.FirstOrDefault()?.ProviderDisplayName ?? "Unknown";
+			return new MAALUser(user.Id, user.UserName, user.Email, provider);
+		}
+		catch (Exception e)
+		{
+			HandleException(e);
+			throw;
+		}
+	}
+
+	/// <summary> Remove user entirely </summary>
+	[HttpGet("Remove")]
+	public async Task Get_Remove()
+	{
+		try
+		{
+			IdentityUser user = await _userManager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
+			await _userManager.DeleteAsync(user);
 		}
 		catch (Exception e)
 		{

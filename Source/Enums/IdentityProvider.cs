@@ -16,5 +16,14 @@ public enum IdentityProvider
 	LinkedIn,
 
 	/// <summary> MAAL account </summary>
-	MAAL
+	MAAL,
+
+	/// <summary> GitHub account </summary>
+	GitHub,
+
+	/// <summary> Pinterest account </summary>
+	Pinterest,
+
+	/// <summary> Facebook account </summary>
+	Facebook
 }

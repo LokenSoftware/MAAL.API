@@ -48,21 +48,11 @@ public class LoginController : MAALControllerBase
 		try
 		{
 			var redirectUrl = $"{_selfUrl}/V1/Login/Callback?returnUrl={HttpUtility.UrlEncode(returnUrl)}";
-			string providerName = provider switch
-			{
-				IdentityProvider.Microsoft => "Microsoft",
-				IdentityProvider.Google => "Google",
-				IdentityProvider.Twitter => "Twitter",
-				IdentityProvider.LinkedIn => "LinkedIn",
-				IdentityProvider.MAAL => "MAAL",
-				_ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
-			};
-
 			AuthenticationProperties properties
-				= _signInManager.ConfigureExternalAuthenticationProperties(providerName, redirectUrl);
+				= _signInManager.ConfigureExternalAuthenticationProperties(provider.ToString(), redirectUrl);
 
 			properties.AllowRefresh = true;
-			return Challenge(properties, providerName);
+			return Challenge(properties, provider.ToString());
 		}
 		catch (Exception e)
 		{
@@ -79,24 +69,16 @@ public class LoginController : MAALControllerBase
 		try
 		{
 			ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync().ConfigureAwait(false);
-			IdentityUser? existing = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey)
-				.ConfigureAwait(false);
 
 			var url = new Uri(new Uri(_frontendUrl), returnUrl);
 			RedirectResult redirect = Redirect(url.ToString());
-			if (existing != null)
-			{
-				await _signInManager.SignInAsync(existing, true).ConfigureAwait(false);
-				return redirect;
-			}
-
 			SignInResult? result = await _signInManager
 				.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false, true)
 				.ConfigureAwait(false);
 
 			if (result.Succeeded)
 			{
-				return Ok();
+				return redirect;
 			}
 			if (result.IsLockedOut)
 			{
@@ -106,7 +88,7 @@ public class LoginController : MAALControllerBase
 			var user = new IdentityUser();
 			string? email = info.Principal.FindFirstValue(ClaimTypes.Email);
 			await _userManager.SetEmailAsync(user, email);
-			
+
 			string? username = info.Principal.Identity?.Name ?? email;
 			await _userManager.SetUserNameAsync(user, username);
 

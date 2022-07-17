@@ -21,7 +21,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Identity
-builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+builder.Services.AddIdentityCore<IdentityUser>(options =>
+	{
+		options.SignIn.RequireConfirmedAccount = false;
+		options.User.AllowedUserNameCharacters = null;
+	})
 	.AddEntityFrameworkStores<ApplicationDbContext>()
 	.AddSignInManager()
 	.AddDefaultTokenProviders();
@@ -39,6 +43,8 @@ authBuilder.AddIdentityCookies();
 
 // Authentication Providers
 IConfigurationSection authentication = builder.Configuration.GetSection("Authentication");
+
+// Google
 authBuilder.AddGoogle(options =>
 {
 	IConfigurationSection google = authentication.GetSection("Google");
@@ -47,6 +53,62 @@ authBuilder.AddGoogle(options =>
 	if (clientId == null || clientSecret == null)
 	{
 		throw new NullReferenceException("Authentication__Google__ClientId and ClientSecret must be defined");
+	}
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
+});
+
+// Twitter
+authBuilder.AddTwitter(options =>
+{
+	IConfigurationSection? twitter = authentication.GetSection("Twitter");
+	string? clientId = twitter["ClientId"];
+	string? clientSecret = twitter["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__Twitter__ClientId and ClientSecret must be defined");
+	}
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
+});
+
+// GitHub
+authBuilder.AddGitHub(options =>
+{
+	IConfigurationSection? gitHub = authentication.GetSection("GitHub");
+	string? clientId = gitHub["ClientId"];
+	string? clientSecret = gitHub["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__GitHub__ClientId and ClientSecret must be defined");
+	}
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
+});
+
+// Microsoft
+authBuilder.AddMicrosoftAccount(options =>
+{
+	IConfigurationSection? microsoft = authentication.GetSection("Microsoft");
+	string? clientId = microsoft["ClientId"];
+	string? clientSecret = microsoft["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__Microsoft__ClientId and ClientSecret must be defined");
+	}
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
+});
+
+// Facebook
+authBuilder.AddFacebook(options =>
+{
+	IConfigurationSection? facebook = authentication.GetSection("Facebook");
+	string? clientId = facebook["ClientId"];
+	string? clientSecret = facebook["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__Facebook__ClientId and ClientSecret must be defined");
 	}
 	options.ClientId = clientId;
 	options.ClientSecret = clientSecret;
