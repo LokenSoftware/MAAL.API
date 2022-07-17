@@ -16,7 +16,9 @@ public sealed class MAALWebApplicationFactory<TStartup> : WebApplicationFactory<
 			{
 				new KeyValuePair<string, string>("ConnectionStrings:Identity", "null"),
 				new KeyValuePair<string, string>("Authentication:Google:ClientId", "null"),
-				new KeyValuePair<string, string>("Authentication:Google:ClientSecret", "null")
+				new KeyValuePair<string, string>("Authentication:Google:ClientSecret", "null"),
+				new KeyValuePair<string, string>("Authentication:Twitter:ClientId", "null"),
+				new KeyValuePair<string, string>("Authentication:Twitter:ClientSecret", "null")
 			})
 			.Build();
 
