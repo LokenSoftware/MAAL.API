@@ -12,9 +12,6 @@ public enum IdentityProvider
 	/// <summary> Twitter account </summary>
 	Twitter,
 
-	/// <summary> LinkedIn account </summary>
-	LinkedIn,
-
 	/// <summary> MAAL account </summary>
 	MAAL,
 
