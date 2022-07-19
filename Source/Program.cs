@@ -1,5 +1,8 @@
+using System.Collections.ObjectModel;
 using JetBrains.Annotations;
 using MAAL.API.Data;
+using MAAL.API.Utils;
+using MAAL.API.Utils.MAAL;
 using MAAL.API.Utils.Pinterest;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -12,9 +15,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 string? connectionString = builder.Configuration.GetConnectionString("Identity");
 if (connectionString == null)
 {
-	// TODO: TESTS do not work with this currently
-	//throw new NullReferenceException("ConnectionStrings__Identity must be defined");
-	Console.WriteLine("ConnectionStrings__Identity was null");
+	throw new NullReferenceException("ConnectionStrings__Identity must be defined");
 }
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 	options.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString)));
@@ -43,91 +44,17 @@ AuthenticationBuilder authBuilder = builder.Services.AddAuthentication(options =
 authBuilder.AddIdentityCookies();
 
 // Authentication Providers
-IConfigurationSection authentication = builder.Configuration.GetSection("Authentication");
-
-// Facebook
-authBuilder.AddFacebook(options =>
+var providers = new Collection<LoginProvider>
 {
-	IConfigurationSection? facebook = authentication.GetSection("Facebook");
-	string? clientId = facebook["ClientId"];
-	string? clientSecret = facebook["ClientSecret"];
-	if (clientId == null || clientSecret == null)
-	{
-		throw new NullReferenceException("Authentication__Facebook__ClientId and ClientSecret must be defined");
-	}
-	options.ClientId = clientId;
-	options.ClientSecret = clientSecret;
-});
-
-// GitHub
-authBuilder.AddGitHub(options =>
-{
-	IConfigurationSection? gitHub = authentication.GetSection("GitHub");
-	string? clientId = gitHub["ClientId"];
-	string? clientSecret = gitHub["ClientSecret"];
-	if (clientId == null || clientSecret == null)
-	{
-		throw new NullReferenceException("Authentication__GitHub__ClientId and ClientSecret must be defined");
-	}
-	options.ClientId = clientId;
-	options.ClientSecret = clientSecret;
-});
-
-// Google
-authBuilder.AddGoogle(options =>
-{
-	IConfigurationSection google = authentication.GetSection("Google");
-	string? clientId = google["ClientId"];
-	string? clientSecret = google["ClientSecret"];
-	if (clientId == null || clientSecret == null)
-	{
-		throw new NullReferenceException("Authentication__Google__ClientId and ClientSecret must be defined");
-	}
-	options.ClientId = clientId;
-	options.ClientSecret = clientSecret;
-});
-
-// Microsoft
-authBuilder.AddMicrosoftAccount(options =>
-{
-	IConfigurationSection? microsoft = authentication.GetSection("Microsoft");
-	string? clientId = microsoft["ClientId"];
-	string? clientSecret = microsoft["ClientSecret"];
-	if (clientId == null || clientSecret == null)
-	{
-		throw new NullReferenceException("Authentication__Microsoft__ClientId and ClientSecret must be defined");
-	}
-	options.ClientId = clientId;
-	options.ClientSecret = clientSecret;
-});
-
-// Pinterest
-authBuilder.AddPinterest(options =>
-{
-	IConfigurationSection? pinterest = authentication.GetSection("Pinterest");
-	string? clientId = pinterest["ClientId"];
-	string? clientSecret = pinterest["ClientSecret"];
-	if (clientId == null || clientSecret == null)
-	{
-		throw new NullReferenceException("Authentication__Pinterest__ClientId and ClientSecret must be defined");
-	}
-	options.ClientId = clientId;
-	options.ClientSecret = clientSecret;
-});
-
-// Twitter
-authBuilder.AddTwitter(options =>
-{
-	IConfigurationSection? twitter = authentication.GetSection("Twitter");
-	string? clientId = twitter["ClientId"];
-	string? clientSecret = twitter["ClientSecret"];
-	if (clientId == null || clientSecret == null)
-	{
-		throw new NullReferenceException("Authentication__Twitter__ClientId and ClientSecret must be defined");
-	}
-	options.ClientId = clientId;
-	options.ClientSecret = clientSecret;
-});
+	new(FacebookAuthenticationOptionsExtensions.AddFacebook, "Facebook"),
+	new(GitHubAuthenticationExtensions.AddGitHub, "GitHub"),
+	new(GoogleExtensions.AddGoogle, "Google"),
+	new(MAALAuthenticationExtensions.AddMAAL, "MAAL"),
+	new(MicrosoftAccountExtensions.AddMicrosoftAccount, "Microsoft"),
+	new(PinterestAuthenticationExtensions.AddPinterest, "Pinterest"),
+	new(TwitterAuthenticationExtensions.AddTwitter, "Twitter")
+};
+authBuilder.AddLoginProviders(providers, builder.Configuration);
 
 // CORS
 builder.Services.AddCors(options =>
