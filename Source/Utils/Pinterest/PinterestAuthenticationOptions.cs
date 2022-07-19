@@ -19,6 +19,7 @@ internal sealed class PinterestAuthenticationOptions : OAuthOptions
 
 		Scope.Add("user_accounts:read");
 		
+		// NOTE: NameIdentifier should be PK. Maybe username is PK in Pinterest's DB, but that would be unusual...
 		ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "username");
 		ClaimActions.MapJsonKey(ClaimTypes.Name, "username");
 	}
