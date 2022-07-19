@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using MAAL.API.Data;
+using MAAL.API.Utils.Pinterest;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -44,29 +45,15 @@ authBuilder.AddIdentityCookies();
 // Authentication Providers
 IConfigurationSection authentication = builder.Configuration.GetSection("Authentication");
 
-// Google
-authBuilder.AddGoogle(options =>
+// Facebook
+authBuilder.AddFacebook(options =>
 {
-	IConfigurationSection google = authentication.GetSection("Google");
-	string? clientId = google["ClientId"];
-	string? clientSecret = google["ClientSecret"];
+	IConfigurationSection? facebook = authentication.GetSection("Facebook");
+	string? clientId = facebook["ClientId"];
+	string? clientSecret = facebook["ClientSecret"];
 	if (clientId == null || clientSecret == null)
 	{
-		throw new NullReferenceException("Authentication__Google__ClientId and ClientSecret must be defined");
-	}
-	options.ClientId = clientId;
-	options.ClientSecret = clientSecret;
-});
-
-// Twitter
-authBuilder.AddTwitter(options =>
-{
-	IConfigurationSection? twitter = authentication.GetSection("Twitter");
-	string? clientId = twitter["ClientId"];
-	string? clientSecret = twitter["ClientSecret"];
-	if (clientId == null || clientSecret == null)
-	{
-		throw new NullReferenceException("Authentication__Twitter__ClientId and ClientSecret must be defined");
+		throw new NullReferenceException("Authentication__Facebook__ClientId and ClientSecret must be defined");
 	}
 	options.ClientId = clientId;
 	options.ClientSecret = clientSecret;
@@ -86,6 +73,20 @@ authBuilder.AddGitHub(options =>
 	options.ClientSecret = clientSecret;
 });
 
+// Google
+authBuilder.AddGoogle(options =>
+{
+	IConfigurationSection google = authentication.GetSection("Google");
+	string? clientId = google["ClientId"];
+	string? clientSecret = google["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__Google__ClientId and ClientSecret must be defined");
+	}
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
+});
+
 // Microsoft
 authBuilder.AddMicrosoftAccount(options =>
 {
@@ -100,15 +101,29 @@ authBuilder.AddMicrosoftAccount(options =>
 	options.ClientSecret = clientSecret;
 });
 
-// Facebook
-authBuilder.AddFacebook(options =>
+// Pinterest
+authBuilder.AddPinterest(options =>
 {
-	IConfigurationSection? facebook = authentication.GetSection("Facebook");
-	string? clientId = facebook["ClientId"];
-	string? clientSecret = facebook["ClientSecret"];
+	IConfigurationSection? pinterest = authentication.GetSection("Pinterest");
+	string? clientId = pinterest["ClientId"];
+	string? clientSecret = pinterest["ClientSecret"];
 	if (clientId == null || clientSecret == null)
 	{
-		throw new NullReferenceException("Authentication__Facebook__ClientId and ClientSecret must be defined");
+		throw new NullReferenceException("Authentication__Pinterest__ClientId and ClientSecret must be defined");
+	}
+	options.ClientId = clientId;
+	options.ClientSecret = clientSecret;
+});
+
+// Twitter
+authBuilder.AddTwitter(options =>
+{
+	IConfigurationSection? twitter = authentication.GetSection("Twitter");
+	string? clientId = twitter["ClientId"];
+	string? clientSecret = twitter["ClientSecret"];
+	if (clientId == null || clientSecret == null)
+	{
+		throw new NullReferenceException("Authentication__Twitter__ClientId and ClientSecret must be defined");
 	}
 	options.ClientId = clientId;
 	options.ClientSecret = clientSecret;
@@ -127,7 +142,7 @@ builder.Services.AddCors(options =>
 		}
 		policyBuilder.WithOrigins(allowedOrigins);
 		policyBuilder.WithHeaders("Content-Type");
-		policyBuilder.WithMethods("OPTIONS", "GET", "POST", "PATCH", "PUT", "DELETE");
+		policyBuilder.WithMethods("GET", "POST", "PATCH", "PUT", "DELETE");
 		policyBuilder.AllowCredentials();
 	});
 });
