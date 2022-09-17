@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Raven.Client.Documents;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace MAAL.API.Controllers.V1;
@@ -29,10 +28,12 @@ public class LoginController : MAALControllerBase
 	private readonly UserManager<RavenUser> _userManager;
 
 	/// <inheritdoc />
-	public LoginController(ILogger<LoginController> logger,
-	                       SignInManager<RavenUser> signInManager,
-	                       UserManager<RavenUser> userManager,
-	                       IConfiguration configuration) : base(logger)
+	public LoginController(
+			ILogger<LoginController> logger,
+			SignInManager<RavenUser> signInManager,
+			UserManager<RavenUser> userManager,
+			IConfiguration configuration
+		) : base(logger)
 	{
 		_signInManager = signInManager;
 		_userManager = userManager;
