@@ -11,10 +11,10 @@ namespace MAAL.API.Controllers.V1;
 public class UserController : MAALControllerBase
 {
 	/// <inheritdoc cref="UserManager{TUser}" />
-	private readonly UserManager<IdentityUser> _userManager;
+	private readonly UserManager<RavenUser> _userManager;
 
 	/// <inheritdoc />
-	public UserController(ILogger<UserController> logger, UserManager<IdentityUser> userManager) : base(logger) =>
+	public UserController(ILogger<UserController> logger, UserManager<RavenUser> userManager) : base(logger) =>
 		_userManager = userManager;
 
 	/// <summary> Fetch information about logged in user </summary>
@@ -23,10 +23,10 @@ public class UserController : MAALControllerBase
 	{
 		try
 		{
-			IdentityUser user = await _userManager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
+			RavenUser user = await _userManager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
 			IList<UserLoginInfo>? login = await _userManager.GetLoginsAsync(user);
 			string provider = login?.FirstOrDefault()?.ProviderDisplayName ?? "Unknown";
-			return new MAALUser(user.Id, user.UserName, user.Email, provider);
+			return new MAALUser(user.Id!, user.UserName, user.Email, provider);
 		}
 		catch (Exception e)
 		{
@@ -41,7 +41,7 @@ public class UserController : MAALControllerBase
 	{
 		try
 		{
-			IdentityUser user = await _userManager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
+			RavenUser user = await _userManager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
 			await _userManager.DeleteAsync(user);
 		}
 		catch (Exception e)

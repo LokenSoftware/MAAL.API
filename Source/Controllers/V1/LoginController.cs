@@ -2,10 +2,12 @@
 using System.Web;
 using MAAL.API.Bases;
 using MAAL.API.Enums;
+using MAAL.API.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Raven.Client.Documents;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace MAAL.API.Controllers.V1;
@@ -20,16 +22,16 @@ public class LoginController : MAALControllerBase
 	/// <summary> Fully qualified base url to self </summary>
 	private readonly string _selfUrl;
 
-	/// <inheritdoc cref="SignInManager{TUser}" />
-	private readonly SignInManager<IdentityUser> _signInManager;
+	/// <inheritdoc cref="Microsoft.AspNetCore.Identity.SignInManager{TUser}" />
+	private readonly SignInManager<RavenUser> _signInManager;
 
 	/// <inheritdoc cref="UserManager{TUser}" />
-	private readonly UserManager<IdentityUser> _userManager;
+	private readonly UserManager<RavenUser> _userManager;
 
 	/// <inheritdoc />
 	public LoginController(ILogger<LoginController> logger,
-	                       SignInManager<IdentityUser> signInManager,
-	                       UserManager<IdentityUser> userManager,
+	                       SignInManager<RavenUser> signInManager,
+	                       UserManager<RavenUser> userManager,
 	                       IConfiguration configuration) : base(logger)
 	{
 		_signInManager = signInManager;
@@ -85,23 +87,18 @@ public class LoginController : MAALControllerBase
 				return Forbid();
 			}
 
-			var user = new IdentityUser();
 			string? email = info.Principal.FindFirstValue(ClaimTypes.Email);
-			await _userManager.SetEmailAsync(user, email);
-
 			string? username = info.Principal.Identity?.Name ?? email;
-			await _userManager.SetUserNameAsync(user, username);
 
+			var user = new RavenUser { Email = email, UserName = username, Logins = { new UserLoginInfo(info.LoginProvider, info.ProviderKey, info.ProviderDisplayName) } };
 			IdentityResult userResult = await _userManager.CreateAsync(user).ConfigureAwait(false);
 			if (!userResult.Succeeded)
 			{
-				return Problem("User could not be created");
+				string errorString = String.Join(", ", userResult.Errors.Select(e => e.Description));
+				return Problem(errorString);
 			}
-
+			
 			await _signInManager.SignInAsync(user, false, info.LoginProvider);
-
-			// Should be moved to email confirmation: https://github.com/dotnet/aspnetcore/blob/main/src/Identity/UI/src/Areas/Identity/Pages/V5/Account/ExternalLogin.cshtml.cs
-			await _userManager.AddLoginAsync(user, info).ConfigureAwait(false);
 			return redirect;
 		}
 		catch (Exception e)

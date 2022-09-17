@@ -1,34 +1,28 @@
 using System.Collections.ObjectModel;
-using JetBrains.Annotations;
-using MAAL.API.Data;
 using MAAL.API.Utils;
 using MAAL.API.Utils.MAAL;
 using MAAL.API.Utils.Pinterest;
+using MAAL.API.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Raven.DependencyInjection;
+using Raven.Identity;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// EF Core Identity
-string? connectionString = builder.Configuration.GetConnectionString("Identity");
-if (connectionString == null)
-{
-	throw new NullReferenceException("ConnectionStrings__Identity must be defined");
-}
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString)));
+// RavenDB
+builder.Services.AddRavenDbDocStore().AddRavenDbAsyncSession();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Identity
-builder.Services.AddIdentityCore<IdentityUser>(options =>
+builder.Services.AddIdentityCore<RavenUser>(options =>
 	{
 		options.SignIn.RequireConfirmedAccount = false;
 		options.User.AllowedUserNameCharacters = null;
 	})
-	.AddEntityFrameworkStores<ApplicationDbContext>()
+	.AddRavenDbIdentityStores<RavenUser>()
 	.AddSignInManager()
 	.AddDefaultTokenProviders();
 
@@ -104,9 +98,3 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.Run();
-
-/// <summary> So tests can reference, but this shouldn't be necessary... </summary>
-[UsedImplicitly]
-#pragma warning disable CA1050
-public partial class Program { }
-#pragma warning restore CA1050
