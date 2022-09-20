@@ -17,9 +17,9 @@ internal static class AuthenticationExtensions
 			provider.AddFunction(builder,
 				options =>
 				{
-					IConfigurationSection google = authentication.GetSection(provider.Key);
-					string? clientId = google["ClientId"];
-					string? clientSecret = google["ClientSecret"];
+					IConfigurationSection section = authentication.GetSection(provider.Key);
+					string? clientId = section["ClientId"];
+					string? clientSecret = section["ClientSecret"];
 					if (clientId == null || clientSecret == null)
 					{
 						throw new NullReferenceException(

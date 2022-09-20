@@ -1,3 +1,4 @@
+using System.Net;
 using MAAL.API.Test.Utils;
 using Xunit;
 
@@ -14,9 +15,9 @@ public sealed class TestControllerTest
 
 	/// <summary> </summary>
 	[Fact]
-	public async Task Should_Get()
+	public async Task Get_Ping_ResultsIn200OK()
 	{
-		HttpResponseMessage res = await _client.GetAsync("/Ping").ConfigureAwait(false);
-		Assert.Equal(StatusCodes.Status200OK, (int)res.StatusCode);
+		HttpResponseMessage res = await _client.GetAsync("/Ping");
+		Assert.Equal(HttpStatusCode.OK, res.StatusCode);
 	}
 }

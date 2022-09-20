@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Reflection;
+using System.Text.Json;
 using MAAL.API.Utils;
 using MAAL.API.Utils.MAAL;
 using MAAL.API.Utils.Pinterest;
@@ -63,7 +65,11 @@ builder.Services.AddCors(options =>
 		}
 		policyBuilder.WithOrigins(allowedOrigins);
 		policyBuilder.WithHeaders("Content-Type");
-		policyBuilder.WithMethods("GET", "POST", "PATCH", "PUT", "DELETE");
+		policyBuilder.WithMethods(HttpMethods.Get,
+			HttpMethods.Post,
+			HttpMethods.Patch,
+			HttpMethods.Put,
+			HttpMethods.Delete);
 		policyBuilder.AllowCredentials();
 	});
 });
@@ -92,9 +98,32 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseRouting();
-app.MapControllers();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
+app.UseEndpoints(routeBuilder =>
+{
+	routeBuilder.MapGet("/Test",
+		async context =>
+		{
+			Type[] types = Assembly.GetEntryAssembly()?.GetTypes() ?? Array.Empty<Type>();
+			IReadOnlyCollection<Type> controllers = types
+				.Where(type => typeof(Microsoft.AspNetCore.Mvc.ControllerBase).IsAssignableFrom(type))
+				.ToList();
+
+			IEnumerable<MethodInfo> methods = controllers
+				.SelectMany(type =>
+					type.GetMethods(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public))
+				.Where(info => !info
+					.GetCustomAttributes(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), true)
+					.Any());
+
+			IEnumerable<string> methodNames = methods.Select(info => info.Name);
+
+			context.Response.StatusCode = StatusCodes.Status200OK;
+			await context.Response.Body.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(methodNames));
+		});
+});
 
 app.Run();

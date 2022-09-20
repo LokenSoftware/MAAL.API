@@ -12,10 +12,12 @@ namespace MAAL.API.Utils.Pinterest;
 internal sealed class PinterestAuthenticationHandler : OAuthHandler<PinterestAuthenticationOptions>
 {
 	/// <inheritdoc />
-	public PinterestAuthenticationHandler(IOptionsMonitor<PinterestAuthenticationOptions> options,
-	                                      ILoggerFactory logger,
-	                                      UrlEncoder encoder,
-	                                      ISystemClock clock) : base(options, logger, encoder, clock) { }
+	public PinterestAuthenticationHandler(
+			IOptionsMonitor<PinterestAuthenticationOptions> options,
+			ILoggerFactory logger,
+			UrlEncoder encoder,
+			ISystemClock clock
+		) : base(options, logger, encoder, clock) { }
 
 	/// <inheritdoc />
 	protected override async Task<AuthenticationTicket> CreateTicketAsync(
@@ -59,11 +61,12 @@ internal sealed class PinterestAuthenticationHandler : OAuthHandler<PinterestAut
 	private static class Log
 	{
 		/// <summary> </summary>
-		internal static async Task UserProfileErrorAsync(ILogger logger,
-		                                                 HttpResponseMessage response,
-		                                                 CancellationToken cancellationToken)
+		internal static async Task UserProfileErrorAsync(
+				ILogger logger,
+				HttpResponseMessage response,
+				CancellationToken cancellationToken)
 		{
-			string body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+			string body = await response.Content.ReadAsStringAsync(cancellationToken);
 			logger.LogError(
 				"An error occurred while retrieving the user profile: the remote server returned a {Status} response with the following payload: {Headers} {Body}",
 				response.StatusCode,

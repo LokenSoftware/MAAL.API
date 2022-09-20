@@ -21,19 +21,17 @@ public class LoginController : MAALControllerBase
 	/// <summary> Fully qualified base url to self </summary>
 	private readonly string _selfUrl;
 
-	/// <inheritdoc cref="Microsoft.AspNetCore.Identity.SignInManager{TUser}" />
+	/// <inheritdoc cref="SignInManager{TUser}" />
 	private readonly SignInManager<RavenUser> _signInManager;
 
 	/// <inheritdoc cref="UserManager{TUser}" />
 	private readonly UserManager<RavenUser> _userManager;
 
 	/// <inheritdoc />
-	public LoginController(
-			ILogger<LoginController> logger,
-			SignInManager<RavenUser> signInManager,
-			UserManager<RavenUser> userManager,
-			IConfiguration configuration
-		) : base(logger)
+	public LoginController(ILogger<LoginController> logger,
+	                       SignInManager<RavenUser> signInManager,
+	                       UserManager<RavenUser> userManager,
+	                       IConfiguration configuration) : base(logger)
 	{
 		_signInManager = signInManager;
 		_userManager = userManager;
@@ -71,13 +69,12 @@ public class LoginController : MAALControllerBase
 	{
 		try
 		{
-			ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync().ConfigureAwait(false);
+			ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync();
 
 			var url = new Uri(new Uri(_frontendUrl), returnUrl);
 			RedirectResult redirect = Redirect(url.ToString());
-			SignInResult? result = await _signInManager
-				.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false, true)
-				.ConfigureAwait(false);
+			SignInResult? result
+				= await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false, true);
 
 			if (result.Succeeded)
 			{
@@ -89,16 +86,34 @@ public class LoginController : MAALControllerBase
 			}
 
 			string? email = info.Principal.FindFirstValue(ClaimTypes.Email);
-			string? username = info.Principal.Identity?.Name ?? email;
+			if (String.IsNullOrEmpty(email))
+			{
+				return BadRequest("Email was not found");
+			}
 
-			var user = new RavenUser { Email = email, UserName = username, Logins = { new UserLoginInfo(info.LoginProvider, info.ProviderKey, info.ProviderDisplayName) } };
-			IdentityResult userResult = await _userManager.CreateAsync(user).ConfigureAwait(false);
+			IdentityResult userResult;
+			RavenUser? user = await _userManager.FindByEmailAsync(email);
+			if (user != null)
+			{
+				userResult = await _userManager.UpdateAsync(user);
+			}
+			else
+			{
+				string username = info.Principal.Identity?.Name ?? email;
+				user = new RavenUser
+				{
+					Email = email,
+					UserName = username,
+					Logins = { new UserLoginInfo(info.LoginProvider, info.ProviderKey, info.ProviderDisplayName) }
+				};
+				userResult = await _userManager.CreateAsync(user);
+			}
 			if (!userResult.Succeeded)
 			{
 				string errorString = String.Join(", ", userResult.Errors.Select(e => e.Description));
 				return Problem(errorString);
 			}
-			
+
 			await _signInManager.SignInAsync(user, false, info.LoginProvider);
 			return redirect;
 		}
@@ -115,7 +130,7 @@ public class LoginController : MAALControllerBase
 	{
 		try
 		{
-			await _signInManager.SignOutAsync().ConfigureAwait(false);
+			await _signInManager.SignOutAsync();
 		}
 		catch (Exception e)
 		{

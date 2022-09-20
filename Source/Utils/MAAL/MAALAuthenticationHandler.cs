@@ -63,7 +63,7 @@ internal sealed class MAALAuthenticationHandler : OAuthHandler<MAALAuthenticatio
 		                                                 HttpResponseMessage response,
 		                                                 CancellationToken cancellationToken)
 		{
-			string body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+			string body = await response.Content.ReadAsStringAsync(cancellationToken);
 			logger.LogError(
 				"An error occurred while retrieving the user profile: the remote server returned a {Status} response with the following payload: {Headers} {Body}",
 				response.StatusCode,
